@@ -3,13 +3,11 @@
 This repository contains MATLAB code and a standalone GUI for modeling multiphoton absorption processes, used to generate the data presented in the accompanying manuscript. The project is designed both for reproducing simulation results and for optimizing experimental conditions in pump-probe experiments.
 
 ## Authors
-
-- **Alexander A.C. Wainwright**¹  
-- **Syeda Mahdia**²  
-- **Khaled Madhoun**¹  
-- **Jessica E. Besaw**³  
-- **R.J. Dwayne Miller**¹⁴*  
-
+**Alexander A.C. Wainwright**¹  
+**Syeda Mahdia**²  
+**Khaled Madhoun**¹  
+**Jessica E. Besaw**³  
+**R.J. Dwayne Miller**¹⁴*  
 \* Corresponding author
 
 ### Affiliations
