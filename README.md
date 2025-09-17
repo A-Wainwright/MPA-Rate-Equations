@@ -58,7 +58,7 @@ This repository contains MATLAB code and a standalone GUI for modeling multiphot
 Contributions are welcome! Please submit issues or pull requests for bug fixes, feature requests, or improvements.
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the GPL-3.0 license. See the [LICENSE](LICENSE) file for details.
 
 ## Citation
 If you use this code in your research, please cite the associated manuscript:  
