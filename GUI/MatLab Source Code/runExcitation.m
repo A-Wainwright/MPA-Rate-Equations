@@ -8,11 +8,11 @@ function runExcitation(params)
         const = getPhysicalConstants();
         wavelength = max(params.wavelength * 1e-9, 1e-10);
         FWHM = max(params.tau_p, const.eps);
-        I0 = max(params.power * 1e4, const.eps);
-        Mprot = max(params.Mprot, const.eps);
-        molar_extinction_Protein = max(params.molar_extinction_Protein, const.eps);
-        Cross_section_0_4_per_photon = max(params.Cross_section_0_4_per_photon, 0);
-        Cross_section_1_4_per_photon = max(params.Cross_section_1_4_per_photon, 0);
+        I0 = max(params.I * 1e4, const.eps);
+        Mprot = max(params.conc, const.eps);
+        molar_extinction_Protein = max(params.alpha, const.eps);
+        Cross_section_0_4_per_photon = max(params.sigma02, 0);
+        Cross_section_1_4_per_photon = max(params.sigma12, 0);
         t_dephase_1 = max(params.t_dephase_1, const.eps);
         lifetime_1 = max(params.lifetime_1, const.eps);
         lifetime_4 = max(params.lifetime_4, const.eps);
@@ -35,15 +35,15 @@ function runExcitation(params)
 
         % Parameter Diagnostics
         fprintf('Sample Name: %s\n', params.sampleName);
-        fprintf('Wavelength: %.0f nm, Peak Power: %.1e W/cm^2, Pulse Duration: %.0f fs\n', params.wavelength, params.power, FWHM*1e15);
+        fprintf('Wavelength: %.0f nm, Peak Power: %.1e W/cm^2, Pulse Duration: %.0f fs\n', params.wavelength, params.I, FWHM*1e15);
         fprintf('\nParameter Diagnostics:\n');
         fprintf('  Max 1PA Rate (S0->S1): %.2e s^-1\n', sigma_01 * I0);
-        fprintf('  Max 2PA Rate (S0->S4): %.2e s^-1\n', sigma_04 * I0^2);
-        fprintf('  Max ESA Rate (S1->S4): %.2e s^-1\n', sigma_14 * I0);
+        fprintf('  Max 2PA Rate (S0->Sn): %.2e s^-1\n', sigma_04 * I0^2);
+        fprintf('  Max ESA Rate (S1->Sn): %.2e s^-1\n', sigma_14 * I0);
         fprintf('  S1 Lifetime (τ₁): %.2e s (Rate: %.2e s^-1)\n', lifetime_1, 1/lifetime_1);
-        fprintf('  S4 Lifetime (τ₄): %.2e s (Rate: %.2e s^-1)\n', lifetime_4, 1/lifetime_4);
+        fprintf('  Sn Lifetime (τ₄): %.2e s (Rate: %.2e s^-1)\n', lifetime_4, 1/lifetime_4);
         fprintf('  S1 Dephasing (T₂): %.2e s (Rate: %.2e s^-1)\n', t_dephase_1, 1/t_dephase_1);
-        fprintf('  S4 Dephasing (T₂): %.2e s (Rate: %.2e s^-1)\n', t_dephase_4, 1/t_dephase_4);
+        fprintf('  Sn Dephasing (T₂): %.2e s (Rate: %.2e s^-1)\n', t_dephase_4, 1/t_dephase_4);
         
         % Set up the simulation grid 
         z_min = max(0.1e-6, z_max/1000);  
@@ -177,7 +177,7 @@ function runExcitation(params)
             subplot(3,1,2);
             plot(t*1e15, weighted_avg_2PA_vs_time, 'r', 'LineWidth', 2);
             xlabel('Time (fs)', 'FontSize', label_fontsize);
-            ylabel('n_{S4} / n_{prot}', 'FontSize', label_fontsize);
+            ylabel('n_{Sn} / n_{prot}', 'FontSize', label_fontsize);
             grid on;
             
             subplot(3,1,3);
@@ -195,21 +195,21 @@ function runExcitation(params)
             ax(1) = subplot(7,1,1); plot(t*1e15, weighted_avg_n_0_vs_time, 'b'); ylabel('n_{0}/n_{prot}', 'FontSize', label_fontsize); title(sprintf('%s: %.0f GW/cm^2, %.0f fs', params.sampleName, I0/1e9, FWHM*1e15), 'FontSize', title_fontsize, 'FontWeight', 'bold');
             ax(2) = subplot(7,1,2); plot(t*1e15, weighted_avg_n_1_vs_time, 'r'); ylabel('S1 coh', 'FontSize', label_fontsize);
             ax(3) = subplot(7,1,3); plot(t*1e15, weighted_avg_n_1_d_vs_time, 'r'); ylabel('S1 dephased', 'FontSize', label_fontsize);
-            ax(4) = subplot(7,1,4); plot(t*1e15, weighted_avg_n_4_vs_time, 'r'); ylabel('S4 coh', 'FontSize', label_fontsize);
-            ax(5) = subplot(7,1,5); plot(t*1e15, weighted_avg_n_4_d_vs_time, 'r'); ylabel('S4 dephased', 'FontSize', label_fontsize);
+            ax(4) = subplot(7,1,4); plot(t*1e15, weighted_avg_n_4_vs_time, 'r'); ylabel('Sn coh', 'FontSize', label_fontsize);
+            ax(5) = subplot(7,1,5); plot(t*1e15, weighted_avg_n_4_d_vs_time, 'r'); ylabel('Sn dephased', 'FontSize', label_fontsize);
             ax(6) = subplot(7,1,6); plot(t*1e15, weighted_avg_1PA_vs_time, 'r'); ylabel('S1 relaxed', 'FontSize', label_fontsize);
-            ax(7) = subplot(7,1,7); plot(t*1e15, weighted_avg_2PA_vs_time, 'r'); ylabel('S4 relaxed', 'FontSize', label_fontsize);
+            ax(7) = subplot(7,1,7); plot(t*1e15, weighted_avg_2PA_vs_time, 'r'); ylabel('Sn relaxed', 'FontSize', label_fontsize);
             xlabel(ax(7), 'Time (fs)', 'FontSize', label_fontsize);
             for i = 1:7, grid(ax(i), 'on'); end
 
             % Figure 3 
-            figure('Name',[params.sampleName, ' - S0,S1,S4 Dynamics'], 'Position', fig_pos, 'NumberTitle', 'off');
+            figure('Name',[params.sampleName, ' - S0,S1,Sn Dynamics'], 'Position', fig_pos, 'NumberTitle', 'off');
             ax2 = gobjects(5,1);
             ax2(1) = subplot(5,1,1); plot(t*1e15, weighted_avg_n_0_vs_time, 'b'); ylabel('S0', 'FontSize', label_fontsize); title(sprintf('%s: %.0f GW/cm^2, %.0f fs', params.sampleName, I0/1e9, FWHM*1e15), 'FontSize', title_fontsize, 'FontWeight', 'bold');
             ax2(2) = subplot(5,1,2); plot(t*1e15, weighted_avg_n_1_vs_time + weighted_avg_n_1_d_vs_time, 'r'); ylabel('S1', 'FontSize', label_fontsize);
-            ax2(3) = subplot(5,1,3); plot(t*1e15, weighted_avg_n_4_vs_time + weighted_avg_n_4_d_vs_time, 'r'); ylabel('S4', 'FontSize', label_fontsize);
+            ax2(3) = subplot(5,1,3); plot(t*1e15, weighted_avg_n_4_vs_time + weighted_avg_n_4_d_vs_time, 'r'); ylabel('Sn', 'FontSize', label_fontsize);
             ax2(4) = subplot(5,1,4); plot(t*1e15, weighted_avg_1PA_vs_time, 'r'); ylabel('S1 final', 'FontSize', label_fontsize);
-            ax2(5) = subplot(5,1,5); plot(t*1e15, weighted_avg_2PA_vs_time, 'r'); ylabel('S4 final', 'FontSize', label_fontsize);
+            ax2(5) = subplot(5,1,5); plot(t*1e15, weighted_avg_2PA_vs_time, 'r'); ylabel('Sn final', 'FontSize', label_fontsize);
             xlabel(ax2(5), 'Time (fs)', 'FontSize', label_fontsize);
             for i = 1:5, grid(ax2(i), 'on'); end
 

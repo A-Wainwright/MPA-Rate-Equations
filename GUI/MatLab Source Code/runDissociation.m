@@ -7,14 +7,14 @@ function runDissociation(params)
         
         const = getPhysicalConstants();
         % Cross sections
-        sigma01 = params.sigma01;           % m² (1PA S0→S1)
-        sigma02 = params.sigma02;           % m⁴·s/photon (2PA S0→S2)
-        sigma12 = params.sigma12;           % m² (1PA S1→S2)
+        sigma01 = params.sigma;             % m² (1PA S0→S1)
+        sigma02 = params.sigma02;           % m⁴·s/photon (2PA S0→Sn)
+        sigma12 = params.sigma12;           % m² (1PA S1→Sn)
         
         % Time constants (converted to seconds)
-        tau_p = params.tau_p * 1e-15;       % Pulse duration: fs → s
-        tau_1 = params.tau_1 * 1e-15;       % S1 lifetime: fs → s  
-        tau_2 = params.tau_2 * 1e-15;       % S2 lifetime: fs → s
+        tau_p = params.tau_p;       % Pulse duration: s
+        tau_1 = params.tau_1;       % S1 lifetime: s  
+        tau_2 = params.tau_2;       % S2 lifetime: s
         
         % Laser params
         I0 = params.I * 1e4;                % Peak intensity: W/cm² → W/m²
@@ -22,19 +22,7 @@ function runDissociation(params)
         
         % Sample parameters
         d_sample = params.d_sample * 1e-6;   % sample depth: μm → m
-        
-        if isfield(params, 'k_dissoc_1') && ~isempty(params.k_dissoc_1)
-            k_dissoc_1 = params.k_dissoc_1; % Dissociation rate from S1 (s^-1)
-        else
-            k_dissoc_1 = 1e12;  % fallback value - default dissociation value to S1
-        end
-        
-        if isfield(params, 'k_dissoc_2') && ~isempty(params.k_dissoc_2)
-            k_dissoc_2 = params.k_dissoc_2; % Dissociation rate from S2 (s^-1)
-        else
-            k_dissoc_2 = 5e12;  % set up default dissociation value to S2
-        end
-        
+             
         if isfield(params, 'alpha') && ~isempty(params.alpha)
             alpha = params.alpha;
         else
@@ -81,7 +69,6 @@ function runDissociation(params)
         n2 = zeros(Nz, 1);
         n0_1 = zeros(Nz, 1);  % Ground state from S1 decay (non-dissociated)
         n0_2 = zeros(Nz, 1);  % Ground state from S2 decay (non-dissociated)
-        dissociated = zeros(Nz, 1); 
         
         % Pre-allocate storage arrays
         n0_t = zeros(Nt, 1);
@@ -89,7 +76,6 @@ function runDissociation(params)
         n2_t = zeros(Nt, 1);
         n0_1_t = zeros(Nt, 1);
         n0_2_t = zeros(Nt, 1);
-        dissociated_t = zeros(Nt, 1);
         
         % Precompute the laser pulse profile 
         pulse_profile = exp(-4*log(2) * (t/tau_p).^2);
@@ -112,8 +98,6 @@ function runDissociation(params)
         fprintf('  Max R12 rate: %.2e s^-1\n', max_R12);
         fprintf('  S1 decay rate: %.2e s^-1\n', 1/tau_1);
         fprintf('  S2 decay rate: %.2e s^-1\n', 1/tau_2);
-        fprintf('  S1 dissociation rate: %.2e s^-1\n', k_dissoc_1);
-        fprintf('  S2 dissociation rate: %.2e s^-1\n', k_dissoc_2);
         
         % Main simulation loop 
         tic; % Start timer
@@ -154,17 +138,15 @@ function runDissociation(params)
             % Following your original approach - n0_1 and n0_2 track total decay
             dn0_1_dt = n1 / tau_1;
             dn0_2_dt = n2 / tau_2;
-            
-            ddissociated_dt = (n1 * k_dissoc_1 + n2 * k_dissoc_2);
-            
+                        
             % Set up adaptive timestep integration 
             n0 = max(n0 + dn0_dt * dt, 1e-10);
             n1 = max(n1 + dn1_dt * dt, 1e-10);
             n2 = max(n2 + dn2_dt * dt, 1e-10);
             n0_1 = max(n0_1 + dn0_1_dt * dt, 1e-10);
             n0_2 = max(n0_2 + dn0_2_dt * dt, 1e-10);
-            dissociated = max(dissociated + ddissociated_dt * dt, 1e-10);
-            total_pop = n0 + n1 + n2 + n0_1 + n0_2 + dissociated;
+
+            total_pop = n0 + n1 + n2 + n0_1 + n0_2;
             mean_total = mean(total_pop);
             if mean_total > 1.0001  
                 scale_factor = 1.0 / mean_total;
@@ -173,7 +155,6 @@ function runDissociation(params)
                 n2 = n2 * scale_factor;
                 n0_1 = n0_1 * scale_factor;
                 n0_2 = n0_2 * scale_factor;
-                dissociated = dissociated * scale_factor;
             end
         
             % Store data 
@@ -182,7 +163,6 @@ function runDissociation(params)
             n2_t(i) = mean(n2);
             n0_1_t(i) = mean(n0_1);
             n0_2_t(i) = mean(n0_2);
-            dissociated_t(i) = mean(dissociated);
             
             % Progress indicator - prints to the cmd window 
             if i == pulse_end_idx
@@ -199,8 +179,7 @@ function runDissociation(params)
         
         % Calculate final results
         n_bound_final = n0_t(end) + n1_t(end) + n2_t(end) + n0_1_t(end) + n0_2_t(end);
-        dissociation_yield = dissociated_t(end);
-        total_accounted = n_bound_final + dissociation_yield;
+        total_accounted = n_bound_final;
         
         % Pathway analysis section
         n_final_1PA = n0_1_t(end);
@@ -221,7 +200,6 @@ function runDissociation(params)
         fprintf('  Ground state (from S1): %.6f\n', n0_1_t(end));
         fprintf('  Ground state (from S2): %.6f\n', n0_2_t(end));
         fprintf('  Total bound: %.6f\n', n_bound_final);
-        fprintf('  Dissociated: %.6f (%.1f%%)\n', dissociation_yield, dissociation_yield * 100);
         fprintf('  Total accounted: %.6f\n', total_accounted);
         
         % Peak populations during pulse vs after pulse
@@ -259,7 +237,6 @@ function runDissociation(params)
         plot_data.n2_t = n2_t;
         plot_data.n0_1_t = n0_1_t;
         plot_data.n0_2_t = n0_2_t;
-        plot_data.dissociated_t = dissociated_t;
         
         sampleName = params.sampleName; % Passed the sample name for plots 
         plotDissociationResults(plot_data, params, sampleName);

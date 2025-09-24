@@ -3,21 +3,19 @@ function plotPathwayComparison(plot_data, params, sampleName)
     figure('Name', [sampleName ' - Pathway Comparison'], 'NumberTitle', 'off', 'Position', [1300, 100, 1000, 500]);
     
     t_fs = plot_data.t * 1e15;
-    pulse_end_fs = plot_data.pulse_end_time * 1e15;
     window_size = max(5, round(length(t_fs) / 200));    
     % Smooth out the population trace
-    n0_1_smooth = movmean(plot_data.n0_1_t, window_size);
-    n0_2_smooth = movmean(plot_data.n0_2_t, window_size);
-    total_smooth = movmean(plot_data.n0_1_t + plot_data.n0_2_t, window_size);
+    n0_1_smooth = movmean(plot_data.n0_1_t, window_size)*100;
+    n0_2_smooth = movmean(plot_data.n0_2_t, window_size)*100;
+    total_smooth = movmean(plot_data.n0_1_t + plot_data.n0_2_t, window_size)*100;
     % Plot 
-    plot(t_fs, n0_1_smooth, 'b-', 'LineWidth', 2.5, 'DisplayName', 'n_{f1} - Final from 1PA');
+    plot(t_fs, n0_1_smooth, 'b-', 'LineWidth', 2.5, 'DisplayName', 'Relaxed from 1PA (n_{f1})');
     hold on;
-    plot(t_fs, n0_2_smooth, 'r-', 'LineWidth', 2.5, 'DisplayName', 'n_{f2} - Final from 2PA');
-    plot(t_fs, total_smooth, 'k--', 'LineWidth', 2, 'DisplayName', 'Total Final Population');
+    plot(t_fs, n0_2_smooth, 'r-', 'LineWidth', 2.5, 'DisplayName', 'Relaxed from 2PA (n_{f2})');
+    plot(t_fs, total_smooth, 'k--', 'LineWidth', 2, 'DisplayName', 'Total Population (n_{f1} + n_{f2})');
     % Mark pulse boundary
-    xline(pulse_end_fs, 'g--', 'Alpha', 0.7, 'LineWidth', 2, 'DisplayName', 'Pulse End');
     xlabel('Time (fs)', 'FontSize', 12);
-    ylabel('Population', 'FontSize', 12);
+    ylabel('Population (%)', 'FontSize', 12);
     
     title(sprintf('%s: Pathway Comparison (1-Photon vs 2-Photon Final Populations)', sampleName), 'FontSize', 14);
     
