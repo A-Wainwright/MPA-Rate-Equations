@@ -25,7 +25,7 @@ function MRE_GUI_Main()
 %   - Exportable data for further analysis
 %
 % Dependencies:
-%   - MATLAB R2023a or later
+%   - MATLAB R2022a or later
 %   - Signal Processing Toolbox
 %   - Optimization Toolbox (if using advanced fitting)
 %
@@ -487,4 +487,5 @@ updateInputs('Excitation');
                 'High Power Warning');
         end
     end
+
 end
