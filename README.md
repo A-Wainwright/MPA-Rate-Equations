@@ -63,4 +63,4 @@ This project is licensed under the GPL-3.0 license. See the [LICENSE](LICENSE) f
 ## Citation
 If you use this code in your research, please cite the associated manuscript:  
 
-*Alexander A.C. Wainwright, Syeda N. Mahdia, Khaled Madhoun, Jessica E. Besaw, R.J. Dwayne Miller, “Title,” Journal, Year.*
+*Alexander A.C. Wainwright, Syeda N. Mahdia, Khaled Madhoun, Jessica E. Besaw, R.J. Dwayne Miller,Modeling Multiphoton Absorption and Ionization in Ultrafast Pump-Probe Experiments, JPC (Under Review), 2026.
