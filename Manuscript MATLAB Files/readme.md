@@ -1,19 +1,32 @@
-# MATLAB Scripts for Multiphoton Absorption Modeling
+# MATLAB Scripts for Multiphoton Absorption and Ionization Modeling
 
-This folder contains all MATLAB scripts used to simulate multiphoton absorption processes for pump-probe experiments. These scripts were used to generate the data and figures presented in the accompanying manuscript.
+This folder contains MATLAB scripts used to simulate multiphoton absorption and strong-field ionization processes relevant to pump–probe and high-intensity ultrafast laser experiments. These scripts were used to generate the data and figures presented in the accompanying manuscript.
+
+---
 
 ## Contents
 
-* **main\_simulation.m** — Main script to run simulations and reproduce manuscript figures.
-* **Supporting Scripts** — Additional MATLAB scripts/functions used by `main_simulation.m` for calculations, plotting, and data processing.
-* **Data Files** — Any required input data for simulations (e.g., absorption coefficients, experimental parameters).
+This folder contains two subdirectories:
+
+* **`MPA/`** — Multiphoton absorption (MPA) simulations
+  Includes rate-equation models for nonlinear absorption processes in systems such as proteins and molecular solutions. These models account for one- and two-photon absorption, saturation effects, and depth-dependent intensity attenuation.
+
+* **`Ionization/`** — Strong-field ionization simulations
+  Includes single-rate equation (SRE) models describing free-electron generation under intense femtosecond excitation.
+
+Each subfolder contains self-contained MATLAB scripts, required parameters, and figure-generation routines.
+
+---
 
 ## Features
 
-* Simulate one-photon and two-photon absorption in protein and water systems
-* Include depth-dependent power loss and intensity attenuation
-* Generate plots and data files for analysis
-* Fully reproducible simulations for manuscript results
+* Simulate one-photon and two-photon absorption in protein and molecular systems
+* Model strong-field ionization and free-electron density evolution
+* Include depth-dependent power loss and intensity attenuation (MPA models)
+* Generate manuscript-ready plots and reproducible data
+* Fully reproducible simulations corresponding to reported results
+
+---
 
 ## Installation
 
@@ -22,31 +35,43 @@ This folder contains all MATLAB scripts used to simulate multiphoton absorption 
    ```bash
    git clone https://github.com/yourusername/multiphoton-absorption.git
    ```
-2. Open MATLAB and navigate to the `MATLAB_Files` folder.
-3. Ensure all supporting scripts and data files are in the same folder or on the MATLAB path.
+
+2. Open MATLAB and navigate to this folder.
+
+3. Ensure all subfolders are on the MATLAB path.
+
+---
 
 ## Usage
 
-1. Open `main_simulation.m` in MATLAB.
-2. Modify simulation parameters at the top of the script (laser intensity, wavelength, sample properties, etc.).
-3. Run the script to generate simulation outputs, including plots and data files.
-4. Use supporting scripts for additional analyses if needed.
+1. Navigate to the desired subfolder:
+
+   * `MPA/` for multiphoton absorption simulations
+   * `Ionization/` for strong-field ionization simulations
+
+2. Open the relevant MATLAB script in that folder.
+
+3. Modify simulation parameters at the top of the script (e.g., laser intensity, wavelength, pulse duration, sample properties).
+
+4. Run the script to generate simulation outputs, including plots and data files.
+
+Refer to the README file within each subfolder for system-specific details.
+
+---
 
 ## Dependencies
 
 * MATLAB R2020b or later
 * No additional toolboxes required
 
+---
+
 ## Support
 
-For questions regarding the MATLAB scripts, contact the corresponding author:
+For questions regarding the MATLAB scripts, contact:
 
-**R.J. Dwayne Miller** – dwayne.miller@utoronto.ca
-or
-**Alexander A.C. Wainwright** – Alexander.Wainwright@mail.utoronto.ca
+**R.J. Dwayne Miller**
+[dwayne.miller@utoronto.ca](mailto:dwayne.miller@utoronto.ca)
 
-
-## Citation
-If you use these MATLAB scripts in your research, please cite the associated manuscript:
-
-*Alexander A.C. Wainwright, Syeda Mahdia, Khaled Madhoun, Jessica E. Besaw, R.J. Dwayne Miller, “Title,” Journal, Year.*
+**Alexander A.C. Wainwright**
+[Alexander.Wainwright@mail.utoronto.ca](mailto:Alexander.Wainwright@mail.utoronto.ca)
