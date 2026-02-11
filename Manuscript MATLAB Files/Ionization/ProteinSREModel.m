@@ -1,6 +1,5 @@
-%% Multi Rate Equation (MRE) testing
-%Programed by Alexander Wainwright 
-%Following Vogel Method as outlined in the reference texts
+%% Protein SRE Model
+%By Alexander Wainwright 
 clear;clc;close all;
 
 %% Notes 
@@ -362,4 +361,5 @@ function [diff_n_sfi,t_rho_init,delta_tilda_ev_gap] = delta_tilda(gama_gap,gama_
     dn_sfi_rho_gap = n_sfi(delta_tilda_gap,gama_gap,w);
     rho_init_transpose=transpose(rho_init);
     diff_n_sfi = dn_sfi_rho_init_c.*(1-rho_init_transpose/n_sat)+dn_sfi_rho_gap;
+
 end
