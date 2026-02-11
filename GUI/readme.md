@@ -5,7 +5,7 @@ This folder contains the standalone GUI and user manual for exploring and optimi
 ## Contents
 
 - **MyAppInstaller_web.exe** — Standalone executable for downloading the GUI.  
-- **GUI_Manual.pdf** — User manual with detailed instructions for operating the GUI.  
+- **GUI_Manual_2025.pdf** — User manual with detailed instructions for operating MAPS_2025. An updated manual for MAPS_2026 will be released in March, 2026.
 
 ## Features
 
@@ -16,7 +16,7 @@ This folder contains the standalone GUI and user manual for exploring and optimi
 
 ## Usage
 
-1. Launch `MultiphotonGUI.exe` by double-clicking it.  
+1. Launch `MyAppInstaller_web.exe` by double-clicking it.  
 2. Follow instructions in **GUI_Manual_2025.pdf** to set parameters and run simulations. An updated version for MAPS_2026 will be released in the comming weeks.
 3. Results are displayed directly in the GUI interface and can be exported if needed.  
 
