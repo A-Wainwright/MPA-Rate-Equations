@@ -1,5 +1,5 @@
-%% Multi Rate Equation (MRE) avec dépendance spatiale I(z,t)
-% Version corrigée avec intensité en profondeur appropriée
+%% MPA modleing of Mb
+% By Alexander A.C. Wainwright
 clear; clc; close all;
 
 %% --- Constants and Parameters ---
@@ -248,4 +248,5 @@ function dn_dt = rate_eqs(n, I, sigma_01, sigma_14, sigma_04, tau_1, tau_4, deph
     dn02 = n4 / tau_4;
 
     dn_dt = [dn0; dn1; dn4; dn01; dn02];
+
 end
