@@ -1,37 +1,119 @@
 # Multiphoton Absorption GUI
 
-This folder contains the files for a matlab GUI for exploring and optimizing multiphoton absorption simulations used in pump-probe experiments. The GUI allows users to adjust experimental parameters and visualize absorption profiles without requiring MATLAB.
+This folder contains the MATLAB source code for a graphical user interface (GUI) designed to explore and optimize multiphoton absorption (MPA), excitation, dissociation, and ionization simulations used in ultrafast pump–probe experiments.
+
+The GUI provides an interactive environment for adjusting experimental parameters and visualizing nonlinear absorption and ionization dynamics.
+
+---
 
 ## Contents
 
-- **MultiphotonGUI.exe** — Standalone executable for running the GUI.  
-- **GUI_Manual.pdf** — User manual with detailed instructions for operating the GUI.  
+### Main GUI File
+
+* **`MRE_GUI_Main.m`** — Main entry point for launching the GUI
+
+### Core Modeling Files
+
+* **`SRE1.m`** — Single-rate equation (SRE) ionization model
+* **`dn_sfi_solver.m`** — Strong-field ionization solver
+* **`n_sfi.m`** — Strong-field ionization rate calculations
+* **`dissociationODE.m`** — ODE system for dissociation modeling
+* **`rate_eqs_during_pulse.m`** — Rate equations during pulse excitation
+* **`rate_eqs_after_pulse.m`** — Rate equations following pulse excitation
+
+### Simulation and Execution Scripts
+
+* **`runExcitation.m`** — Excitation simulations
+* **`runDissociation.m`** — Dissociation simulations
+* **`runIonization.m`** — Ionization simulations
+
+### Plotting Utilities
+
+* **`plotDissociationResults.m`**
+* **`plotPathwayComparison.m`**
+
+### Supporting Functions
+
+* **`Q.m`**
+* **`delta_tilda.m`**
+* **`getPhysicalConstants.m`**
+* **`checkCompilationReadiness.m`**
+
+---
 
 ## Features
 
-- Adjust laser wavelength, intensity, and sample properties interactively  
-- Visualize absorption profiles in real time  
-- Explore parameter space to optimize experimental conditions  
-- No MATLAB license required  
+* Interactive adjustment of:
+
+  * Laser wavelength
+  * Pulse duration
+  * Peak intensity
+  * Material and molecular parameters
+
+* Simulation of:
+
+  * Multiphoton excitation
+  * Strong-field ionization
+  * Dissociation pathways
+  * Free-electron density evolution
+
+* Real-time visualization of:
+
+  * Population dynamics
+  * Ionization fractions
+  * Pathway comparisons
+
+* Designed for both interactive exploration and reproducible manuscript simulations
+
+---
+
+## Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/multiphoton-absorption.git
+   ```
+
+2. Open MATLAB (R2020b or later recommended).
+
+3. Navigate to this folder.
+
+4. Ensure all files are on the MATLAB path.
+
+---
 
 ## Usage
 
-1. Launch `MultiphotonGUI.exe` by double-clicking it.  
-2. Follow instructions in **GUI_Manual.pdf** to set parameters and run simulations.  
-3. Results are displayed directly in the GUI interface and can be exported if needed.  
+1. Open MATLAB.
+
+2. Run:
+
+   ```matlab
+   MRE_GUI_Main
+   ```
+
+3. Adjust parameters within the GUI interface.
+
+4. Run simulations and visualize results directly within the GUI.
+
+For compiled standalone versions, ensure all required MATLAB Runtime dependencies are installed.
+
+---
 
 ## Requirements
-- MATLAB 2020 or newer
+
+* MATLAB R2020b or later
+* No additional toolboxes required (unless compiling a standalone version)
+
+---
+
 ## Support
 
-For questions or issues related to the GUI, please refer to the **GUI_Manual.pdf** or contact the corresponding author:  
+For questions or issues related to the GUI, please contact:
 
-**R.J. Dwayne Miller** – [email/contact info]  
+**R.J. Dwayne Miller**
+[dwayne.miller@utoronto.ca](mailto:dwayne.miller@utoronto.ca)
 
-## Citation
-
-If you use this GUI in your research, please cite the associated manuscript:  
-
-*Alexander A.C. Wainwright, Syeda Mahdia, Khaled Madhoun, Jessica E. Besaw, R.J. Dwayne Miller, “Title,” Journal, Year.*
-
-
+**Alexander A.C. Wainwright**
+[Alexander.Wainwright@mail.utoronto.ca](mailto:Alexander.Wainwright@mail.utoronto.ca)
