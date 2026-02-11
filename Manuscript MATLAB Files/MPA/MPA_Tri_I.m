@@ -1,5 +1,5 @@
-%% Multi Rate Equation (MRE) avec dépendance spatiale I(z,t)
-% MPA of I3- Under strong and normal  
+%% MPA modleing of I3- Under strong and normal  
+% Alexander A.C. Wainwright
 clear; clc; close all;
 
 %% --- Constants and Parameters ---
@@ -290,4 +290,5 @@ function dn_dt = rate_eqs_after_pulse(t_solve, n, lifetime_1, lifetime_4)
     
     % Return as column vector
     dn_dt = [dn0_dt; dn1_dt; dn4_dt; dn01_dt; dn02_dt;];
+
 end
