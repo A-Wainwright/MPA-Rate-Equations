@@ -29,13 +29,13 @@ This folder contains the standalone GUI and user manual for exploring and optimi
 
 For questions or issues related to the GUI, please refer to the **GUI_Manual.pdf** or contact the corresponding author:  
 
-**R.J. Dwayne Miller** – [email/contact info]  
+For questions regarding the MATLAB scripts, contact the corresponding author:
+
+**R.J. Dwayne Miller** – dwayne.miller@utoronto.ca or **Alexander A.C. Wainwright** – Alexander.Wainwright@mail.utoronto.ca
 
 ## Citation
 
 If you use this GUI in your research, please cite the associated manuscript:  
-
-If you use this code in your research, please cite the associated manuscript:
 
 Alexander A.C. Wainwright, Syeda N. Mahdia, Khaled Madhoun, Jessica E. Besaw, R.J. Dwayne Miller,Modeling Multiphoton Absorption and Ionization in Ultrafast Pump-Probe Experiments, JCP (Under Review), 2026.
 
