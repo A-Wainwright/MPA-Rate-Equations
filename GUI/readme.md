@@ -4,7 +4,7 @@ This folder contains the standalone GUI and user manual for exploring and optimi
 
 ## Contents
 
-- **MultiphotonGUI.exe** — Standalone executable for running the GUI.  
+- **MyAppInstaller_web.exe** — Standalone executable for running the GUI.  
 - **GUI_Manual.pdf** — User manual with detailed instructions for operating the GUI.  
 
 ## Features
