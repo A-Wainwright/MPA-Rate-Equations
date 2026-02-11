@@ -20,11 +20,6 @@ This folder contains the standalone GUI and user manual for exploring and optimi
 2. Follow instructions in **GUI_Manual.pdf** to set parameters and run simulations.  
 3. Results are displayed directly in the GUI interface and can be exported if needed.  
 
-## Requirements
-
-- Windows OS (or platform-specific executable if provided)  
-- No additional software required  
-
 ## Support
 
 For questions or issues related to the GUI, please refer to the **GUI_Manual.pdf** or contact the corresponding author:  
