@@ -1,4 +1,4 @@
-# Multiphoton Absorption and Ionization in Ultrafast Pump-Probe Experiments
+# Modeling Multiphoton Absorption and Ionization in Ultrafast Pump-Probe Experiments
 
 This repository contains MATLAB code and a standalone GUI for modeling multiphoton absorption processes, used to generate the data presented in the accompanying manuscript. The project is designed both for reproducing simulation results and for optimizing experimental conditions in pump-probe experiments.
 
