@@ -1,6 +1,6 @@
 # Multiphoton Absorption GUI
 
-This folder contains the standalone GUI and user manual for exploring and optimizing multiphoton absorption simulations used in pump-probe experiments. The GUI allows users to adjust experimental parameters and visualize absorption profiles without requiring MATLAB.
+This folder contains the files for a matlab GUI for exploring and optimizing multiphoton absorption simulations used in pump-probe experiments. The GUI allows users to adjust experimental parameters and visualize absorption profiles without requiring MATLAB.
 
 ## Contents
 
