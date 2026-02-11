@@ -35,5 +35,7 @@ For questions or issues related to the GUI, please refer to the **GUI_Manual.pdf
 
 If you use this GUI in your research, please cite the associated manuscript:  
 
-*Alexander A.C. Wainwright, Syeda Mahdia, Khaled Madhoun, Jessica E. Besaw, R.J. Dwayne Miller, “Title,” Journal, Year.*
+If you use this code in your research, please cite the associated manuscript:
+
+Alexander A.C. Wainwright, Syeda N. Mahdia, Khaled Madhoun, Jessica E. Besaw, R.J. Dwayne Miller,Modeling Multiphoton Absorption and Ionization in Ultrafast Pump-Probe Experiments, JCP (Under Review), 2026.
 
