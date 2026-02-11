@@ -21,10 +21,7 @@ This folder contains the files for a matlab GUI for exploring and optimizing mul
 3. Results are displayed directly in the GUI interface and can be exported if needed.  
 
 ## Requirements
-
-- Windows OS (or platform-specific executable if provided)  
-- No additional software required  
-
+- MATLAB 2020 or newer
 ## Support
 
 For questions or issues related to the GUI, please refer to the **GUI_Manual.pdf** or contact the corresponding author:  
