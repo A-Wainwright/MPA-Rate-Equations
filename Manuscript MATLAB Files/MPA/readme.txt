@@ -8,7 +8,7 @@ This folder contains MATLAB scripts used to simulate multiphoton absorption (MPA
 * **Myoglobin (Mb)**
 * **Triiodide (I₃⁻)**
 
-These scripts implement coupled rate-equation models to describe nonlinear excitation processes under intense femtosecond laser irradiation. The simulations were used to generate data and figures presented in the accompanying manuscript and are fully reproducible under the specified conditions.
+These scripts implement coupled rate-equation models to describe nonlinear excitation processes under intense femtosecond laser irradiation. The simulations were used to generate the data and figures presented in the accompanying manuscript and are fully reproducible under the specified conditions.
 
 ---
 
@@ -16,11 +16,12 @@ These scripts implement coupled rate-equation models to describe nonlinear excit
 
 This folder contains three system-specific simulation scripts:
 
-* **`MPA_Calculations_Br.m`** — Multiphoton absorption modleing for Bacteriorhodopsin (BR).
-* **`MPA_Calculations_Mb.m`** — Multiphoton absorption modleing for Myoglobin (Mb).
-* **`MPA_Tri_I.m`** — Multiphoton absorption modleing for Triiodide (I₃⁻).
+* **`MPA_Calculations_Br.m`** — Multiphoton absorption modeling for Bacteriorhodopsin (BR)
+* **`MPA_Calculations_Mb.m`** — Multiphoton absorption modeling for Myoglobin (Mb)
+* **`MPA_Tri_I.m`** — Multiphoton absorption modeling for Triiodide (I₃⁻)
 
 Each script is self-contained and includes:
+
 * Molecular parameters
 * Laser input parameters
 * Rate-equation implementation
@@ -39,7 +40,9 @@ The simulations are based on multi-level rate equation systems describing:
 * Depth-dependent intensity attenuation (for BR and Mb)
 
 ### Three-Level Approximation
+
 Protein systems are modeled using a minimal three-level system:
+
 1. Ground state
 2. Excited electronic state
 3. Ionized (free-electron) state
@@ -49,6 +52,7 @@ This is the simplest physically consistent model capable of capturing nonlinear 
 ---
 
 ## Features
+
 * Simulate nonlinear absorption under femtosecond excitation
 * Model intensity-dependent saturation behavior
 * Estimate ionization fractions
@@ -106,7 +110,7 @@ This is the simplest physically consistent model capable of capturing nonlinear 
 ## Limitations
 
 * Reduced-level electronic structure model
-* Cross-sections treated as constant unless specified
+* Cross-sections treated as constant unless otherwise specified
 * No thermal or structural dynamics included
 * Plasma effects and beam reshaping not fully modeled
 * Parameters derived from literature values and may vary between sources
@@ -114,10 +118,14 @@ This is the simplest physically consistent model capable of capturing nonlinear 
 Results should be interpreted as mechanistic and order-of-magnitude estimates rather than ab initio predictions.
 
 ---
+
 ## Support
 
 For questions regarding the MATLAB scripts, contact:
 
-**R.J. Dwayne Miller** – [dwayne.miller@utoronto.ca](mailto:dwayne.miller@utoronto.ca)
-or
-**Alexander A.C. Wainwright** – [Alexander.Wainwright@mail.utoronto.ca](mailto:Alexander.Wainwright@mail.utoronto.ca)
+**R.J. Dwayne Miller**
+[dwayne.miller@utoronto.ca](mailto:dwayne.miller@utoronto.ca)
+
+**Alexander A.C. Wainwright**
+[Alexander.Wainwright@mail.utoronto.ca](mailto:Alexander.Wainwright@mail.utoronto.ca)
+
