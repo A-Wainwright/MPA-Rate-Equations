@@ -41,10 +41,11 @@ This folder contains all MATLAB scripts used to simulate multiphoton absorption 
 
 For questions regarding the MATLAB scripts, contact the corresponding author:
 
-**R.J. Dwayne Miller** – \[email/contact info]
+**R.J. Dwayne Miller** – dwayne.miller@utoronto.ca
+**Alexander A.C. Wainwright** – Alexander.Wainwright@mail.utoronto.ca
+
 
 ## Citation
-
 If you use these MATLAB scripts in your research, please cite the associated manuscript:
 
 *Alexander A.C. Wainwright, Syeda Mahdia, Khaled Madhoun, Jessica E. Besaw, R.J. Dwayne Miller, “Title,” Journal, Year.*
