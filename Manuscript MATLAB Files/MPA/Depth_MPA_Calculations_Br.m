@@ -1,5 +1,5 @@
-%% Multi Rate Equation (MRE) avec dépendance spatiale I(z,t)
-% Version corrigée avec intensité en profondeur appropriée
+%% MPA Calculations for BR
+% Alexander A.C. Wainwright
 % Last Used Jan 8 2026
 clear; clc; close all;
 
@@ -342,4 +342,5 @@ function dn_dt = rate_eqs_after_pulse(t_solve, n, lifetime_1, lifetime_4, dephas
     
     % Return as column vector
     dn_dt = [dn0_dt; dn1_dt; dn4_dt; dn01_dt; dn02_dt; dn1_dark_dt; dn2_dark_dt];
+
 end
