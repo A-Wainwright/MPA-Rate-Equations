@@ -1,9 +1,3 @@
-Great — I’ll tailor the README exactly to those three files and simplify the structure so it matches what’s actually in the folder.
-
-Here is the revised version:
-
----
-
 # MATLAB Scripts for Multiphoton Absorption Modeling
 
 ## I₃⁻, Bacteriorhodopsin (BR), and Myoglobin (Mb)
