@@ -17,7 +17,7 @@ This folder contains the standalone GUI and user manual for exploring and optimi
 ## Usage
 
 1. Launch `MultiphotonGUI.exe` by double-clicking it.  
-2. Follow instructions in **GUI_Manual.pdf** to set parameters and run simulations.  
+2. Follow instructions in **GUI_Manual_2025.pdf** to set parameters and run simulations. An updated version for MAPS_2026 will be released in the comming weeks.
 3. Results are displayed directly in the GUI interface and can be exported if needed.  
 
 ## Support
