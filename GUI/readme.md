@@ -6,7 +6,7 @@ This folder contains the standalone GUI and user manual for exploring and optimi
 
 - **MyAppInstaller_web.exe** — Standalone executable for downloading the GUI.  
 - **GUI_Manual_2026.pdf** — User manual with detailed instructions for operating MAPS_2026.
-- **MatLab Source Code** - Folder has the matlab source code for the GUI solver.
+- **MatLab Source Code** - Folder has the matlab source code for the GUI compiler.
 ## Features
 
 - Adjust laser wavelength, intensity, and sample properties interactively  
