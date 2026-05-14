@@ -6,7 +6,7 @@ function MRE_GUI_Main()
 %
 % Description:
 %   GUI for modeling multi-photon absorption (MPA) in protein and water systems.
-%   Allows users to input laser parameters, select molecular targets, and simulate
+%   Allows users to input laser parameters, ctuallyselect molecular targets, and simulate
 %   one-photon and two-photon absorption, strong-field ionization, and related dynamics.
 %
 % Inputs:
@@ -261,7 +261,7 @@ updateInputs('Excitation');
                     photLabel.Text = 'Updated automatically';
                 end
 
-                % 🚨 LIVE WARNING CHECK
+                % LIVE WARNING CHECK
                 if photonsPerChrom > 1
                     uialert(fig, ...
                         sprintf('Warning: Photons per chromophore = %.3g (greater than 1).', photonsPerChrom), ...
@@ -378,7 +378,7 @@ updateInputs('Excitation');
         % Store references
         advancedPanel.UserData = struct('toggleButton', advancedToggle, 'isExpanded', true);
 
-        % 🔑 Bring the panel on top of all siblings
+        % Bring the panel on top of all siblings
         uistack(advancedPanel, 'top');
     end
 
@@ -411,6 +411,14 @@ updateInputs('Excitation');
 
 %% --- onRun ---
     function onRun(mode)
+        % setup progress bar dialog! 
+        pb = uiprogressdlg(fig, ...
+            'Title',   sprintf('Running %s Simulation', mode), ...
+            'Message', 'Initializing...', ...
+            'Value',   0, ...
+            'Cancelable', 'off');
+        drawnow;
+      
         try
             inputs = struct();
             sampleNameField = findobj(fig,'Tag','sampleName');
@@ -426,6 +434,7 @@ updateInputs('Excitation');
                 if isa(field,'matlab.ui.control.NumericEditField')
                     val = field.Value;
                     if isnan(val)||~isfinite(val)
+                        close(pb);
                         uialert(fig,sprintf('Invalid value for %s',field.Tag),'Input Error');
                         return;
                     end
@@ -438,6 +447,7 @@ updateInputs('Excitation');
                     if isa(field,'matlab.ui.control.NumericEditField')
                         val = field.Value;
                         if isnan(val)||~isfinite(val)
+                            close(pb);
                             uialert(fig,sprintf('Invalid value for %s',field.Tag),'Input Error');
                             return;
                         end
@@ -446,31 +456,36 @@ updateInputs('Excitation');
                 end
             end
 
-            % 🚨CHECK: photons per chromophore > 1
+            % CHECK: photons per chromophore > 1
             if isfield(inputs,'phot_per_chrom') && inputs.phot_per_chrom > 1
                 uialert(fig, ...
                     sprintf('Warning: Photons per chromophore = %.3g (greater than 1).', inputs.phot_per_chrom), ...
                     'Photon Warning', ...
                     'Icon','warning');
             end
-            % 🚨CHECK Ionization: I > 1e13
+            % check Ionization: I > 1e13
             if isfield(inputs,'I')
                 checkPowerWarning(mode, inputs.I);
             end
 
-            % Run simulation (placeholders)
+            % run sim - update with pb - progress bar second argument 
             switch mode
                 case 'Excitation'
-                    runExcitation(inputs);
+                    runExcitation(inputs, pb);
                 case 'Dissociation'
-                    runDissociation(inputs);
+                    runDissociation(inputs, pb);
                 case 'Ionization'
-                    runIonization(inputs);
+                    runIonization(inputs, pb);
             end
 
         catch ME
             uialert(fig,['Unexpected error: ',ME.message],'Error');
             fprintf('Error details: %s\n',getReport(ME));
+        end
+
+        % alw close the dialog when done (or on error)
+        if isvalid(pb)
+            close(pb);
         end
     end
 
@@ -488,4 +503,3 @@ updateInputs('Excitation');
     end
 
 end
-

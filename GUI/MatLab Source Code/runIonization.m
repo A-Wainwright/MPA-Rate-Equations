@@ -1,9 +1,13 @@
+function results = runIonization(params, pb)
+% pb added 
+if nargin < 2, pb = []; end
 
-function results = runIonization(params)
 const = getPhysicalConstants();
 % Start timer
 tic;
 try
+    updatePB(pb, 0.05, 'Validating inputs...');
+
     % Input validation and defaults
     if nargin < 1 || isempty(params)
         params.wavelength = 515e-9; % m
@@ -46,6 +50,8 @@ try
     fprintf('Total Time Points: %d\n', params.n_time);
     fprintf('========================================\n\n');
 
+    updatePB(pb, 0.10, 'Setting up laser parameters...');
+
     % Set up effective mass
     m_prime = 0.5 * const.m; % effective mass of electron
     m_c = const.m / 2; % mass of electron in conduction band
@@ -86,6 +92,8 @@ try
     n_0_1 = sqrt(n_0_1_sq);
     fprintf('Status: Computing rate equation constants...\n');
 
+    updatePB(pb, 0.18, 'Computing Keldysh parameters...');
+
     % Pre-compute common constants
     w_1 = 2 * pi * const.c / params.wavelength; % angular frequency
     sqrt_factor = sqrt(2 / (n_0_1 * const.epsilon0 * const.c));
@@ -97,10 +105,14 @@ try
 
     gama_gap_1 = keldysh_factor_gap ./ sqrt(I_1); % Keldysh parameter
     gama_int_1 = keldysh_factor_int ./ sqrt(I_1); % Keldysh parameter
+
+    updatePB(pb, 0.28, 'Computing delta-tilda and SFI rates...');
     fprintf('Status: Computing delta tilda and SFI rates...\n');
 
     % Perform delta_tilda calculation - now using your helper function
     [diff_n_sfi_1, ~, delta_tilda_ev_gap_1] = delta_tilda(gama_gap_1, gama_int_1, params.E_gap, params.E_int, const.m, w_1, const.e, F_1, t);
+
+    updatePB(pb, 0.50, 'Computing avalanche ionization constants...');
 
     % Pre-compute avalanche ionization constants
     delta_tilda_gap_1 = delta_tilda_ev_gap_1 * 1.60218e-19;
@@ -109,6 +121,8 @@ try
 
     n_AI_Asym_1 = ai_constant * I_1 ./ delta_tilda_gap_1;
     fprintf('Status: Solving rate equations...\n');
+
+    updatePB(pb, 0.58, sprintf('Solving rate equations with %s...', params.solver));
 
     ode_options = odeset('RelTol', 1e-6, 'AbsTol', 1e-9, 'MaxStep', max(diff(t))/2, ...
         'Vectorized', 'on', 'JPattern', 1);
@@ -119,67 +133,83 @@ try
 
     switch params.solver
         case 'Euler'
-    fprintf('\nRunning manual Euler solver for SRE1...\n');
+            fprintf('\nRunning manual Euler solver for SRE1...\n');
 
-    % Preallocate as column vectors
-    n_total = zeros(length(t),1);
-    n_SFI   = zeros(length(t),1);
+            % Preallocate as column vectors
+            n_total = zeros(length(t),1);
+            n_SFI   = zeros(length(t),1);
 
-    % Ensure t is column
-    t = t(:);
+            % Ensure t is column
+            t = t(:);
 
-    % Compute dt array safely as column
-    dt_array = diff([t; t(end)]);  % last dt same as previous
+            % Compute dt array safely as column
+            dt_array = diff([t; t(end)]);  % last dt same as previous
 
-    % Initial conditions
-    n_tot = 0;
-    n_sfi = 0;
+            % Initial conditions
+            n_tot = 0;
+            n_sfi = 0;
 
-    for i = 1:length(t)
-        dt = dt_array(min(i,end));  % scalar time step
+            Nt = length(t);
+            pb_euler_start = 0.58;
+            pb_euler_end   = 0.80;
 
-        % Compute increments
-        dn_total_dt = SRE1(t(i), n_tot, t_interp, diff_n_sfi_interp, n_AI_interp, params.n_bound);
-        dn_total_dt = dn_total_dt(:);        % ensure column
-        dn_total_dt = dn_total_dt(1);        % take first element if vector
+            for i = 1:Nt
+                dt = dt_array(min(i,end));  % scalar time step
 
-        dn_SFI_dt   = interp1(t, diff_n_sfi_interp(:), t(i), 'linear', 0);  % scalar
+                % Compute increments
+                dn_total_dt = SRE1(t(i), n_tot, t_interp, diff_n_sfi_interp, n_AI_interp, params.n_bound);
+                dn_total_dt = dn_total_dt(:);
+                dn_total_dt = dn_total_dt(1);
 
-        % Update
-        n_tot = n_tot + dn_total_dt * dt;
-        n_sfi = n_sfi + dn_SFI_dt * dt;
+                dn_SFI_dt   = interp1(t, diff_n_sfi_interp(:), t(i), 'linear', 0);
 
-        % Store
-        n_total(i) = n_tot;
-        n_SFI(i)   = n_sfi;
-    end
+                % Update
+                n_tot = n_tot + dn_total_dt * dt;
+                n_sfi = n_sfi + dn_SFI_dt * dt;
 
-    t_n_total = t;  % times corresponding to total electrons
-    t_SFI     = t;  % times corresponding to SFI electrons
+                % Store
+                n_total(i) = n_tot;
+                n_SFI(i)   = n_sfi;
+
+                % Update pb every ~10%
+                if mod(i, max(1, floor(Nt/10))) == 0 || i == Nt
+                    frac = pb_euler_start + (pb_euler_end - pb_euler_start) * i / Nt;
+                    updatePB(pb, frac, sprintf('Euler solver: %.0f%%', 100*i/Nt));
+                end
+            end
+
+            t_n_total = t;
+            t_SFI     = t;
 
         case 'ode45'
             fprintf('\nRunning ode45 for SRE1...\n');
             [t_n_total, n_total] = ode45(@(t_solve,n) SRE1(t_solve, n, t_interp, diff_n_sfi_interp, n_AI_interp, params.n_bound), t, 0, ode_options);
             [t_SFI, n_SFI] = ode45(@(t_sln,n) interp1(t, diff_n_sfi_interp, t_sln, 'linear', 0), t, 0, ode_options);
+            updatePB(pb, 0.80, 'ode45 complete...');
 
         case 'ode23'
             fprintf('\nRunning ode23 for SRE1...\n');
             [t_n_total, n_total] = ode23(@(t_solve,n) SRE1(t_solve, n, t_interp, diff_n_sfi_interp, n_AI_interp, params.n_bound), t, 0, ode_options);
             [t_SFI, n_SFI] = ode23(@(t_sln,n) interp1(t, diff_n_sfi_interp, t_sln, 'linear', 0), t, 0, ode_options);
+            updatePB(pb, 0.80, 'ode23 complete...');
 
         case 'ode23s'
             fprintf('\nRunning ode23s for SRE1...\n');
             [t_n_total, n_total] = ode23s(@(t_solve,n) SRE1(t_solve, n, t_interp, diff_n_sfi_interp, n_AI_interp, params.n_bound), t, 0, ode_options);
             [t_SFI, n_SFI] = ode23s(@(t_sln,n) interp1(t, diff_n_sfi_interp, t_sln, 'linear', 0), t, 0, ode_options);
+            updatePB(pb, 0.80, 'ode23s complete...');
 
         case 'ode15s'
             fprintf('\nRunning ode15s for SRE1...\n');
             [t_n_total, n_total] = ode15s(@(t_solve,n) SRE1(t_solve, n, t_interp, diff_n_sfi_interp, n_AI_interp, params.n_bound), t, 0, ode_options);
             [t_SFI, n_SFI] = ode15s(@(t_sln,n) interp1(t, diff_n_sfi_interp, t_sln, 'linear', 0), t, 0, ode_options);
+            updatePB(pb, 0.80, 'ode15s complete...');
 
         otherwise
             error('Unknown solver: %s', params.solver);
     end
+
+    updatePB(pb, 0.82, 'Computing final statistics...');
 
     % Convert Vector Vales
     n_total_cm_3 = n_total * 1e-6; % Vectorized conversion
@@ -241,6 +271,7 @@ try
 
     % Plotting
     fprintf('Status: Generating plots...\n');
+    updatePB(pb, 0.90, 'Generating ionization plot...');
 
     figure('Name', [params.sampleName ' - Ionization Results'], 'NumberTitle', 'off');
     clf;
@@ -262,6 +293,8 @@ try
     legend('Location', 'southeast');
     grid on;
 
+    updatePB(pb, 1.0, 'Done!');
+
     computation_time = toc;
     fprintf('Total computation time: %.2f seconds\n', computation_time);
     results.computation_time = computation_time;
@@ -271,4 +304,13 @@ catch ME
     fprintf('Error occurred on line %d\n', ME.stack(1).line);
     rethrow(ME);
 end
+end
+
+% safely update the progress dialog
+function updatePB(pb, val, msg)
+    if ~isempty(pb) && isvalid(pb)
+        pb.Value   = max(0, min(1, val));
+        pb.Message = msg;
+        drawnow;
+    end
 end

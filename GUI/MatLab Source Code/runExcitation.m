@@ -1,8 +1,13 @@
-
-function runExcitation(params)
+function runExcitation(params, pb)
 % Timer for the entire function
 master_tic = tic;
+
+% pb is optional — all updates are guarded so the function works without it
+if nargin < 2, pb = []; end
+
 try
+    updatePB(pb, 0.05, 'Initializing parameters...');
+
     % Setup / parameter calc
     fprintf('\n=== EXCITATION SIMULATION PARAMETERS ===\n');
     const = getPhysicalConstants();
@@ -45,6 +50,8 @@ try
     fprintf('  S1 Dephasing (T₂): %.2e s (Rate: %.2e s^-1)\n', t_dephase_1, 1/t_dephase_1);
     fprintf('  Sn Dephasing (T₂): %.2e s (Rate: %.2e s^-1)\n', t_dephase_4, 1/t_dephase_4);
 
+    updatePB(pb, 0.10, 'Setting up simulation grid...');
+
     % Set up the simulation grid
     z_min = max(0.1e-6, z_max/1000);
     n_depth = min(max(50, 300), 1000);
@@ -81,6 +88,12 @@ try
     if isempty(pulse_end_idx), pulse_end_idx = n_time; end
 
     options = odeset('RelTol', 1e-4, 'AbsTol', 1e-6, 'NonNegative', 1:7);
+
+    % Progress: depth loop spans pb values 0.15 → 0.80
+    pb_loop_start = 0.15;
+    pb_loop_end   = 0.80;
+    updatePB(pb, pb_loop_start, 'Running solver: pulse phase...');
+
     for zi = 1:n_depth
         try
             I_func = @(t_in) interp1(t, I_z_t(zi,:), t_in, 'linear', 0);
@@ -190,11 +203,19 @@ try
             n0_matrix(zi,:) = n_prot * ones(1, n_time);
         end
 
+        % Update progress bar every ~5% of depth points
+        if mod(zi, max(1, floor(n_depth/20))) == 0 || zi == n_depth
+            frac = pb_loop_start + (pb_loop_end - pb_loop_start) * zi / n_depth;
+            updatePB(pb, frac, sprintf('Running solver...', zi));
+        end
+
         if mod(zi, floor(n_depth/4)) == 0 && zi > 1
             fprintf('  Progress: %.0f%% (%.1f sec elapsed)\n', 100*zi/n_depth, toc(sim_tic));
         end
     end
     fprintf('Simulation completed in %.2f seconds.\n', toc(sim_tic));
+
+    updatePB(pb, 0.82, 'Post-processing results...');
 
     % Post processing and results
     ratio_matrix = n04_matrix ./ max(n01_matrix + const.eps, const.eps);
@@ -235,6 +256,7 @@ try
 
     % Plotting
     fprintf('\nGenerating plots...\n');
+    updatePB(pb, 0.90, 'Generating plots...');
     plot_tic = tic;
     try
         fig_pos = [50, 50, 950, 750];
@@ -266,6 +288,8 @@ try
         ylabel(cb, 'Ratio', 'FontSize', label_fontsize);
         axis xy;
 
+        updatePB(pb, 0.93, 'Generating energy level plots...');
+
         % Figure 2 (focuses on energy level dynamics)
         figure('Name',[params.sampleName, ' - Energy Level Dynamics'], 'Position', fig_pos, 'NumberTitle', 'off');
         ax = gobjects(7,1);
@@ -278,6 +302,8 @@ try
         ax(7) = subplot(7,1,7); plot(t*1e15, weighted_avg_2PA_vs_time, 'r'); ylabel('Sn relaxed', 'FontSize', label_fontsize);
         xlabel(ax(7), 'Time (fs)', 'FontSize', label_fontsize);
         for i = 1:7, grid(ax(i), 'on'); end
+
+        updatePB(pb, 0.97, 'Generating population dynamics plot...');
 
         % Figure 3
         figure('Name',[params.sampleName, ' - S0,S1,Sn Dynamics'], 'Position', fig_pos, 'NumberTitle', 'off');
@@ -294,9 +320,20 @@ try
         warning('Plotting error: %s', ME.message);
     end
     fprintf('Plots generated in %.2f seconds.\n', toc(plot_tic));
+    % progress var final update
+    updatePB(pb, 1.0, 'Done!');
 
 catch ME
     rethrow(ME);
 end
 fprintf('Total runtime for Excitation: %.2f seconds.\n\n', toc(master_tic));
+end
+
+% update progress dialog
+function updatePB(pb, val, msg)
+    if ~isempty(pb) && isvalid(pb)
+        pb.Value   = max(0, min(1, val));
+        pb.Message = msg;
+        drawnow;
+    end
 end

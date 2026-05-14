@@ -1,5 +1,10 @@
-function runDissociation(params)
+function runDissociation(params, pb)
+% pb is optional — all updates are guarded so the function works without it
+if nargin < 2, pb = []; end
+
 try
+    updatePB(pb, 0.05, 'Validating inputs...');
+
     % Input validation
     if nargin < 1 || isempty(params)
         error('Parameters structure is required');
@@ -38,6 +43,8 @@ try
 
     % Constants
     photon_energy = const.h_bar * 2*pi*const.c / wavelength;
+
+    updatePB(pb, 0.12, 'Building time grid...');
 
     % Set up spatial discretization
     z_max = max(d_sample, 1e-9);
@@ -93,6 +100,9 @@ try
     % Initial populations
     y0 = [mean(n0); mean(n1); mean(n2); mean(n0_1); mean(n0_2)];
     I_func = @(tt) interp1(t, I_t_array, tt, 'linear', 0)/photon_energy;
+
+    updatePB(pb, 0.20, sprintf('Running %s solver...', params.solver));
+
     switch params.solver
         case 'Euler'
             fprintf('\nRunning manual Euler solver...\n');
@@ -103,6 +113,10 @@ try
 
             % Precompute timesteps
             dt_array = diff([t, t(end)]);
+
+            % Euler loop — update pb every ~10%
+            pb_euler_start = 0.20;
+            pb_euler_end   = 0.80;
 
             for i = 1:Nt
                 I_t = I_t_array(i);
@@ -144,7 +158,15 @@ try
                 n0_t(i)=mean(n0); n1_t(i)=mean(n1); n2_t(i)=mean(n2);
                 n0_1_t(i)=mean(n0_1); n0_2_t(i)=mean(n0_2);
 
-                % Progress
+                % Update progress bar every ~10% of time steps
+                if mod(i, max(1, floor(Nt/10))) == 0 || i == Nt
+                    frac = pb_euler_start + (pb_euler_end - pb_euler_start) * i / Nt;
+                    phase = 'pulse';
+                    if i > pulse_end_idx, phase = 'decay'; end
+                    updatePB(pb, frac, sprintf('Euler: %s phase  %.0f%%', phase, 100*i/Nt));
+                end
+
+                % Console progress
                 if i == pulse_end_idx
                     fprintf('Pulse phase completed (%.1f sec elapsed)\n', toc);
                 elseif i == pulse_end_idx + floor((Nt-pulse_end_idx)/2)
@@ -158,53 +180,37 @@ try
             fprintf('\nRunning ode45 solver...\n');
             odefun = @(tt,n) dissociationODE(tt, n, I_func, sigma01, sigma02, sigma12, tau_1, tau_2, eps);
             [t_sol, y_sol] = ode45(odefun, [t(1) t(end)], y0);
-            % Unpack results
+            updatePB(pb, 0.80, 'ode45 complete, unpacking results...');
             t = t_sol;
-            n0_t   = y_sol(:,1);
-            n1_t   = y_sol(:,2);
-            n2_t   = y_sol(:,3);
-            n0_1_t = y_sol(:,4);
-            n0_2_t = y_sol(:,5);
-
+            n0_t   = y_sol(:,1); n1_t   = y_sol(:,2); n2_t   = y_sol(:,3);
+            n0_1_t = y_sol(:,4); n0_2_t = y_sol(:,5);
 
         case 'ode23'
             fprintf('\nRunning ode23 solver...\n');
             odefun = @(tt,n) dissociationODE(tt, n, I_func, sigma01, sigma02, sigma12, tau_1, tau_2, eps);
             [t_sol, y_sol] = ode23(odefun, [t(1) t(end)], y0);
-            % Unpack results
+            updatePB(pb, 0.80, 'ode23 complete, unpacking results...');
             t = t_sol;
-            n0_t   = y_sol(:,1);
-            n1_t   = y_sol(:,2);
-            n2_t   = y_sol(:,3);
-            n0_1_t = y_sol(:,4);
-            n0_2_t = y_sol(:,5);
-
+            n0_t   = y_sol(:,1); n1_t   = y_sol(:,2); n2_t   = y_sol(:,3);
+            n0_1_t = y_sol(:,4); n0_2_t = y_sol(:,5);
 
         case 'ode23s'
             fprintf('\nRunning ode23s solver...\n');
             odefun = @(tt,n) dissociationODE(tt, n, I_func, sigma01, sigma02, sigma12, tau_1, tau_2, eps);
             [t_sol, y_sol] = ode23s(odefun, [t(1) t(end)], y0);
-
-            % Unpack results
+            updatePB(pb, 0.80, 'ode23s complete, unpacking results...');
             t = t_sol;
-            n0_t   = y_sol(:,1);
-            n1_t   = y_sol(:,2);
-            n2_t   = y_sol(:,3);
-            n0_1_t = y_sol(:,4);
-            n0_2_t = y_sol(:,5);
+            n0_t   = y_sol(:,1); n1_t   = y_sol(:,2); n2_t   = y_sol(:,3);
+            n0_1_t = y_sol(:,4); n0_2_t = y_sol(:,5);
 
         case 'ode15s'
             fprintf('\nRunning ode15s solver...\n');
             odefun = @(tt,n) dissociationODE(tt, n, I_func, sigma01, sigma02, sigma12, tau_1, tau_2, eps);
             [t_sol, y_sol] = ode15s(odefun, [t(1) t(end)], y0);
-            % Unpack results
+            updatePB(pb, 0.80, 'ode15s complete, unpacking results...');
             t = t_sol;
-            n0_t   = y_sol(:,1);
-            n1_t   = y_sol(:,2);
-            n2_t   = y_sol(:,3);
-            n0_1_t = y_sol(:,4);
-            n0_2_t = y_sol(:,5);
-
+            n0_t   = y_sol(:,1); n1_t   = y_sol(:,2); n2_t   = y_sol(:,3);
+            n0_1_t = y_sol(:,4); n0_2_t = y_sol(:,5);
 
         otherwise
             error('Unknown solver: %s', params.solver);
@@ -212,6 +218,8 @@ try
 
     elapsed_time = toc;
     fprintf('Simulation completed in %.2f seconds\n', elapsed_time);
+
+    updatePB(pb, 0.85, 'Computing final statistics...');
 
     % Final results
     n_bound_final = n0_t(end) + n1_t(end) + n2_t(end) + n0_1_t(end) + n0_2_t(end);
@@ -232,6 +240,8 @@ try
     fprintf('  Total bound: %.6f\n', n_bound_final);
     fprintf('  2PA/1PA ratio: %.3f\n', pathway_ratio_2PA_to_1PA);
 
+    updatePB(pb, 0.90, 'Generating plots...');
+
     % Plotting
     plot_data.t = t;
     plot_data.pulse_end_time = pulse_end;
@@ -243,11 +253,23 @@ try
 
     sampleName = params.sampleName;
     plotDissociationResults(plot_data, params, sampleName);
+    updatePB(pb, 0.95, 'Generating pathway comparison plot...');
     plotPathwayComparison(plot_data, params, sampleName);
+
+    updatePB(pb, 1.0, 'Done!');
 
 catch ME
     fprintf('ERROR in runDissociation: %s\n', ME.message);
     fprintf('Error occurred on line %d\n', ME.stack(1).line);
     rethrow(ME);
 end
+end
+
+% sfetly update 
+function updatePB(pb, val, msg)
+    if ~isempty(pb) && isvalid(pb)
+        pb.Value   = max(0, min(1, val));
+        pb.Message = msg;
+        drawnow;
+    end
 end

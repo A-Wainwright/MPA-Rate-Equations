@@ -6,7 +6,9 @@ function [q] = Q(gamma, x)
     [K_val, E_val] = ellipke(1 ./ (sqrt(1 + gamma.^2)));
     
     % Reduced top value for faster computation (was 500, now adaptive)
-    top = min(100, max(20, round(50./sqrt(gamma + 0.1)))); % Adaptive based on gamma
+    %top = min(100, max(20, round(50./sqrt(gamma + 0.1)))); % Adaptive based on gamma
+    gamma_scalar = mean(gamma(:));
+    top = min(100, max(20, round(50 / sqrt(gamma_scalar + 0.1))));
     x_val = 0:top;
     
     % Vectorized computation
