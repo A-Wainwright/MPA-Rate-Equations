@@ -18,7 +18,7 @@ try
     molar_extinction_Protein = max(params.alpha, const.eps);
     Cross_section_0_4_per_photon = max(params.sigma02, 0);
     Cross_section_1_4_per_photon = max(params.sigma12, 0);
-    t_dephase_1 = max(params.t_dephase_1, const.eps);
+    t_detune_1 = max(params.t_detune_1, const.eps);
     lifetime_1 = max(params.lifetime_1, const.eps);
     lifetime_4 = max(params.lifetime_4, const.eps);
     z_max = max(params.z_max, 1e-9);
@@ -36,7 +36,7 @@ try
     sigma_04 = Cross_section_0_4_per_photon / hw2;
     sigma_14 = Cross_section_1_4_per_photon / hw;
     TPA_prot = Cross_section_0_4_per_photon / hw * n_prot;
-    t_dephase_4 = 0.7 * t_dephase_1;
+    t_detune_4 = 0.7 * t_detune_1;
 
     % Parameter Diagnostics
     fprintf('Sample Name: %s\n', params.sampleName);
@@ -47,8 +47,8 @@ try
     fprintf('  Max ESA Rate (S1->Sn): %.2e s^-1\n', sigma_14 * I0);
     fprintf('  S1 Lifetime (τ₁): %.2e s (Rate: %.2e s^-1)\n', lifetime_1, 1/lifetime_1);
     fprintf('  Sn Lifetime (τ₄): %.2e s (Rate: %.2e s^-1)\n', lifetime_4, 1/lifetime_4);
-    fprintf('  S1 Dephasing (T₂): %.2e s (Rate: %.2e s^-1)\n', t_dephase_1, 1/t_dephase_1);
-    fprintf('  Sn Dephasing (T₂): %.2e s (Rate: %.2e s^-1)\n', t_dephase_4, 1/t_dephase_4);
+    fprintf('  S1 Detuning (T₂): %.2e s (Rate: %.2e s^-1)\n', t_detune_1, 1/t_detune_1);
+    fprintf('  Sn Detuning (T₂): %.2e s (Rate: %.2e s^-1)\n', t_detune_4, 1/t_detune_4);
 
     updatePB(pb, 0.10, 'Setting up simulation grid...');
 
@@ -110,7 +110,7 @@ try
                         n_prev = n_sol1(k-1,:)';
                         dn = rate_eqs_during_pulse(tn, n_prev, I_func, ...
                             sigma_01, sigma_04, sigma_14, ...
-                            lifetime_1, lifetime_4, t_dephase_1, t_dephase_4, const.eps);
+                            lifetime_1, lifetime_4, t_detune_1, t_detune_4, const.eps);
                         n_sol1(k,:) = (n_prev + dt*dn)'; % Euler step
                     end
                     t_sol1 = t(1:pulse_end_idx);
@@ -118,25 +118,25 @@ try
                 case 'ode45'
                     ode1 = @(t_in,n) rate_eqs_during_pulse(t_in,n,I_func, ...
                         sigma_01,sigma_04,sigma_14,lifetime_1,lifetime_4, ...
-                        t_dephase_1,t_dephase_4,const.eps);
+                        t_detune_1,t_detune_4,const.eps);
                     [t_sol1, n_sol1] = ode45(ode1, t(1:pulse_end_idx), init, options);
 
                 case 'ode23'
                     ode1 = @(t_in,n) rate_eqs_during_pulse(t_in,n,I_func, ...
                         sigma_01,sigma_04,sigma_14,lifetime_1,lifetime_4, ...
-                        t_dephase_1,t_dephase_4,const.eps);
+                        t_detune_1,t_detune_4,const.eps);
                     [t_sol1, n_sol1] = ode23(ode1, t(1:pulse_end_idx), init, options);
 
                 case 'ode23s'
                     ode1 = @(t_in,n) rate_eqs_during_pulse(t_in,n,I_func, ...
                         sigma_01,sigma_04,sigma_14,lifetime_1,lifetime_4, ...
-                        t_dephase_1,t_dephase_4,const.eps);
+                        t_detune_1,t_detune_4,const.eps);
                     [t_sol1, n_sol1] = ode23s(ode1, t(1:pulse_end_idx), init, options);
 
                 case 'ode15s'
                     ode1 = @(t_in,n) rate_eqs_during_pulse(t_in,n,I_func, ...
                         sigma_01,sigma_04,sigma_14,lifetime_1,lifetime_4, ...
-                        t_dephase_1,t_dephase_4,const.eps);
+                        t_detune_1,t_detune_4,const.eps);
                     [t_sol1, n_sol1] = ode15s(ode1, t(1:pulse_end_idx), init, options);
 
                 otherwise
@@ -154,29 +154,29 @@ try
                         tn = t(pulse_end_idx + k - 2);
                         n_prev = n_sol2(k-1,:)';
                         dn = rate_eqs_after_pulse(tn, n_prev, ...
-                            lifetime_1,lifetime_4,t_dephase_1,t_dephase_4,const.eps);
+                            lifetime_1,lifetime_4,t_detune_1,t_detune_4,const.eps);
                         n_sol2(k,:) = (n_prev + dt*dn)'; % Euler step
                     end
                     t_sol2 = t(pulse_end_idx:end);
 
                 case 'ode45'
                     ode2 = @(t_in,n) rate_eqs_after_pulse(t_in,n, ...
-                        lifetime_1,lifetime_4,t_dephase_1,t_dephase_4,const.eps);
+                        lifetime_1,lifetime_4,t_detune_1,t_detune_4,const.eps);
                     [t_sol2, n_sol2] = ode45(ode2, t(pulse_end_idx:end), final_state, options);
 
                 case 'ode23'
                     ode2 = @(t_in,n) rate_eqs_after_pulse(t_in,n, ...
-                        lifetime_1,lifetime_4,t_dephase_1,t_dephase_4,const.eps);
+                        lifetime_1,lifetime_4,t_detune_1,t_detune_4,const.eps);
                     [t_sol2, n_sol2] = ode23(ode2, t(pulse_end_idx:end), final_state, options);
 
                 case 'ode23s'
                     ode2 = @(t_in,n) rate_eqs_after_pulse(t_in,n, ...
-                        lifetime_1,lifetime_4,t_dephase_1,t_dephase_4,const.eps);
+                        lifetime_1,lifetime_4,t_detune_1,t_detune_4,const.eps);
                     [t_sol2, n_sol2] = ode23s(ode2, t(pulse_end_idx:end), final_state, options);
 
                 case 'ode15s'
                     ode2 = @(t_in,n) rate_eqs_after_pulse(t_in,n, ...
-                        lifetime_1,lifetime_4,t_dephase_1,t_dephase_4,const.eps);
+                        lifetime_1,lifetime_4,t_detune_1,t_detune_4,const.eps);
                     [t_sol2, n_sol2] = ode15s(ode2, t(pulse_end_idx:end), final_state, options);
             end
 
@@ -295,9 +295,9 @@ try
         ax = gobjects(7,1);
         ax(1) = subplot(7,1,1); plot(t*1e15, weighted_avg_n_0_vs_time, 'b'); ylabel('n_{0}/n_{prot}', 'FontSize', label_fontsize); title(sprintf('%s: %.0f GW/cm^2, %.0f fs', params.sampleName, I0/1e9, FWHM*1e15), 'FontSize', title_fontsize, 'FontWeight', 'bold');
         ax(2) = subplot(7,1,2); plot(t*1e15, weighted_avg_n_1_vs_time, 'r'); ylabel('S1 coh', 'FontSize', label_fontsize);
-        ax(3) = subplot(7,1,3); plot(t*1e15, weighted_avg_n_1_d_vs_time, 'r'); ylabel('S1 dephased', 'FontSize', label_fontsize);
+        ax(3) = subplot(7,1,3); plot(t*1e15, weighted_avg_n_1_d_vs_time, 'r'); ylabel('S1 detuned', 'FontSize', label_fontsize);
         ax(4) = subplot(7,1,4); plot(t*1e15, weighted_avg_n_4_vs_time, 'r'); ylabel('Sn coh', 'FontSize', label_fontsize);
-        ax(5) = subplot(7,1,5); plot(t*1e15, weighted_avg_n_4_d_vs_time, 'r'); ylabel('Sn dephased', 'FontSize', label_fontsize);
+        ax(5) = subplot(7,1,5); plot(t*1e15, weighted_avg_n_4_d_vs_time, 'r'); ylabel('Sn detuned', 'FontSize', label_fontsize);
         ax(6) = subplot(7,1,6); plot(t*1e15, weighted_avg_1PA_vs_time, 'r'); ylabel('S1 relaxed', 'FontSize', label_fontsize);
         ax(7) = subplot(7,1,7); plot(t*1e15, weighted_avg_2PA_vs_time, 'r'); ylabel('Sn relaxed', 'FontSize', label_fontsize);
         xlabel(ax(7), 'Time (fs)', 'FontSize', label_fontsize);

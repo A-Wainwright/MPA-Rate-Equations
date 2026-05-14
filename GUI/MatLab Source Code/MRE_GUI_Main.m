@@ -156,9 +156,9 @@ updateInputs('Excitation');
 
                 createInput(paramPanel,'σ_{0n} (m^4·s/photon)','sigma02',290e-58);
                 createInput(paramPanel,'σ_{1n} (cm^2)','sigma12',1e-20);
-                createInput(paramPanel,'Dephasing Time S1 (s)','t_dephase_1',28e-15);
-                createInput(paramPanel,'Decay Lifetime S1 (s)','lifetime_1',450e-15);
-                createInput(paramPanel,'Decay Lifetime S4 (s)','lifetime_4',200e-15);
+                createInput(paramPanel,'Detuning Time S_1 (s)','t_detune_1',28e-15);
+                createInput(paramPanel,'Decay Lifetime S_1 (s)','lifetime_1',450e-15);
+                createInput(paramPanel,'Decay Lifetime S_n (s)','lifetime_4',200e-15);
                 createInput(paramPanel,'Max depth (m)','z_max',3e-6);
 
                 solverGroup.SelectedObject = findobj(solverGroup,'Tag','ode45'); % default: ode45
