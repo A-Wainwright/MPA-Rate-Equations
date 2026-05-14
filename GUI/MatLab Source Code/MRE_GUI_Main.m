@@ -136,7 +136,17 @@ uibutton(fig, 'Text', 'Close Plots', 'Position', [(FIG_WIDTH-140)/2+200, 30, 140
 % Set up callbacks and initialize
 processMenu.ValueChangedFcn = @(dd,event) updateInputs(dd.Value);
 advancedPanel = [];
+isUpdatingFields = false;
+
 updateInputs('Excitation');
+
+% Force initial synchronization of dependent fields
+sigmaField = findobj(fig,'Tag','sigma');
+
+if ~isempty(sigmaField)
+    updateAbsorptionFields(fig, sigmaField);
+end
+
 
 %% --- Nested function: updateInputs ---
     function updateInputs(mode)
@@ -196,96 +206,137 @@ updateInputs('Excitation');
         end
     end
 
-%% --- updateAbsorptionFields (with photons per chromophore) ---
-    function updateAbsorptionFields(fig, src)
-        NA = 6.022e23; % Avogadro number
-        h = 6.626e-34; % Planck constant
-        c = 3e8;       % speed of light
+%% --- updateAbsorptionFields ---
+function updateAbsorptionFields(fig, src)
 
-        % Find relevant fields
-        concField  = findobj(fig,'Tag','conc');
-        alphaField = findobj(fig,'Tag','alpha');
-        sigmaField = findobj(fig,'Tag','sigma');
-        photField  = findobj(fig,'Tag','phot_per_chrom');
-        wavelengthField = findobj(fig,'Tag','wavelength'); % in nm
-
-        % Labels for notes
-        concLabel  = findobj(fig,'Tag','conc_note');
-        alphaLabel = findobj(fig,'Tag','alpha_note');
-        sigmaLabel = findobj(fig,'Tag','sigma_note');
-        photLabel  = findobj(fig,'Tag','phot_note');
-
-        if isempty(concField) || isempty(alphaField) || isempty(sigmaField) || isempty(photField)
-            return;
-        end
-
-        C = concField.Value;      % M
-        alpha = alphaField.Value; % cm^-1
-        sigma = sigmaField.Value; % cm^2
-        lambda_nm = wavelengthField.Value; % nm
-
-        % Number density [cm^-3]
-        N = C * NA * 1e-3;
-
-        % Update sigma or alpha depending on which changed
-        switch src.Tag
-            case {'conc','alpha'}
-                if N > 0
-                    sigmaField.Value = str2double(sprintf('%.4g', alpha / N));
-                    sigmaLabel.Text = 'σ = α / N';
-                    alphaLabel.Text = 'User Value';
-                else
-                    sigmaField.Value = NaN;
-                end
-            case 'sigma'
-                alphaField.Value = str2double(sprintf('%.4g', sigma * N));
-                alphaLabel.Text = 'α = σ · N';
-                sigmaLabel.Text = 'User Value';
-        end
-
-        % Update Photons per Chromophore
-        if ~isempty(photField) && ~isempty(wavelengthField) && lambda_nm > 0
-            I_field = findobj(fig,'Tag','I');       % Laser intensity (W/cm^2)
-            tau_field = findobj(fig,'Tag','tau_p'); % Pulse duration (s)
-            if ~isempty(I_field) && ~isempty(tau_field)
-                I = I_field.Value;        % W/cm^2
-                tau = tau_field.Value;    % s
-                lambda_m = lambda_nm * 1e-9;
-                photonEnergy = h*c/lambda_m;       % J per photon
-                photonFlux = (I * tau) / photonEnergy; % photons/cm^2 per pulse
-                sigma_cm2 = sigmaField.Value;          % cm^2
-                photonsPerChrom = sigma_cm2 * photonFlux;
-
-                photField.Value = str2double(sprintf('%.4g', photonsPerChrom));
-                if ~isempty(photLabel)
-                    photLabel.Text = 'Updated automatically';
-                end
-
-                % LIVE WARNING CHECK
-                if photonsPerChrom > 1
-                    uialert(fig, ...
-                        sprintf('Warning: Photons per chromophore = %.3g (greater than 1).', photonsPerChrom), ...
-                        'Photon Warning', ...
-                        'Icon','warning');
-                end
-
-                if strcmp(src.Tag,'I') && src.Value > 1e13
-                    uialert(fig, ...
-                        sprintf(['Warning: An intensity of %.2e W/cm^2 risks ionization.\n' ...
-                        'Please run the ionization model to assess the risk of ionization with your input parameters.'], src.Value), ...
-                        'High Intensity Warning', ...
-                        'Icon','warning');
-                end
-            end
-        end
-
-        % Format fields
-        concField.Value  = str2double(sprintf('%.4g', concField.Value));
-        alphaField.Value = str2double(sprintf('%.4g', alphaField.Value));
-        sigmaField.Value = str2double(sprintf('%.4g', sigmaField.Value));
-        photField.Value  = str2double(sprintf('%.4g', photField.Value));
+    % Prevent recursive callback loops
+    if isUpdatingFields
+        return;
     end
 
+    isUpdatingFields = true;
+
+    cleanupObj = onCleanup(@() releaseLock());
+
+    function releaseLock()
+        isUpdatingFields = false;
+    end
+
+    NA = 6.022e23;
+    h  = 6.626e-34;
+    c  = 3e8;
+
+    % --- Find fields ---
+    concField       = findobj(fig,'Tag','conc');
+    alphaField      = findobj(fig,'Tag','alpha');
+    sigmaField      = findobj(fig,'Tag','sigma');
+    photField       = findobj(fig,'Tag','phot_per_chrom');
+    wavelengthField = findobj(fig,'Tag','wavelength');
+    I_field         = findobj(fig,'Tag','I');
+    tau_field       = findobj(fig,'Tag','tau_p');
+
+    if isempty(concField) || isempty(alphaField) || ...
+       isempty(sigmaField) || isempty(photField)
+        return;
+    end
+
+    % --- Values ---
+    C         = concField.Value;
+    alpha     = alphaField.Value;
+    sigma     = sigmaField.Value;
+    lambda_nm = wavelengthField.Value;
+
+    % Number density
+    N = C * NA * 1e-3;
+
+    % =========================================================
+    % Update alpha/sigma
+    % =========================================================
+    switch src.Tag
+
+        case {'conc','alpha'}
+
+            if N > 0
+                sigmaField.Value = alpha / N;
+            end
+
+        case 'sigma'
+
+            alphaField.Value = sigma * N;
+    end
+
+    % =========================================================
+    % Photon calculations
+    % =========================================================
+    if isempty(I_field) || isempty(tau_field)
+        return;
+    end
+
+    I      = I_field.Value;
+    tau    = tau_field.Value;
+    lambda = lambda_nm * 1e-9;
+
+    photonEnergy = h*c/lambda;
+
+    % =========================================================
+    % If INTENSITY changed -> update PPC
+    % =========================================================
+    if strcmp(src.Tag,'I') || strcmp(src.Tag,'tau_p') || ...
+       strcmp(src.Tag,'wavelength') || strcmp(src.Tag,'sigma')
+
+        photonFlux = (I * tau) / photonEnergy;
+
+        photonsPerChrom = sigmaField.Value * photonFlux;
+
+        photField.Value = photonsPerChrom;
+    end
+
+    % =========================================================
+    % If PPC changed -> update INTENSITY
+    % =========================================================
+    if strcmp(src.Tag,'phot_per_chrom')
+
+        PPC = photField.Value;
+
+        if sigmaField.Value > 0 && tau > 0
+
+            requiredFlux = PPC / sigmaField.Value;
+
+            I_new = (requiredFlux * photonEnergy) / tau;
+
+            I_field.Value = I_new;
+        end
+    end
+
+    % =========================================================
+    % Formatting
+    % =========================================================
+    concField.Value  = str2double(sprintf('%.4g',concField.Value));
+    alphaField.Value = str2double(sprintf('%.4g',alphaField.Value));
+    sigmaField.Value = str2double(sprintf('%.4g',sigmaField.Value));
+    photField.Value  = str2double(sprintf('%.4g',photField.Value));
+    I_field.Value    = str2double(sprintf('%.4g',I_field.Value));
+
+    % =========================================================
+    % Warnings
+    % =========================================================
+    if photField.Value > 1
+        uialert(fig, ...
+            sprintf('Warning: Photons per chromophore = %.3g (greater than 1).', ...
+            photField.Value), ...
+            'Photon Warning', ...
+            'Icon','warning');
+    end
+
+    if I_field.Value > 1e13
+        uialert(fig, ...
+            sprintf(['Warning: An intensity of %.2e W/cm^2 risks ionization.\n' ...
+            'Please run the ionization model to assess the risk.'], ...
+            I_field.Value), ...
+            'High Intensity Warning', ...
+            'Icon','warning');
+    end
+end
 
 %% --- createInput ---
     function createInput(parent,labelText,tag,defaultVal,isAdvanced)
