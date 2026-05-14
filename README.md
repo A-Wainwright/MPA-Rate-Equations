@@ -51,7 +51,8 @@ This repository contains MATLAB code and a standalone GUI for modeling multiphot
 
 ## Dependencies
 - MATLAB R2020b or later (for running scripts)  
-- No additional toolboxes required  
+- Symbolic math toolbox
+- Control system toolbox
 - The GUI is standalone and requires no MATLAB installation  
 
 ## Contributing
