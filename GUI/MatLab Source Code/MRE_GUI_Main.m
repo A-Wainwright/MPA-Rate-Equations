@@ -6,7 +6,7 @@ function MRE_GUI_Main()
 %
 % Description:
 %   GUI for modeling multi-photon absorption (MPA) in protein and water systems.
-%   Allows users to input laser parameters, ctuallyselect molecular targets, and simulate
+%   Allows users to input laser parameters, molecular parameters, and simulate
 %   one-photon and two-photon absorption, strong-field ionization, and related dynamics.
 %
 % Inputs:
