@@ -157,21 +157,28 @@ end
             case 'Excitation'
                 createInput(paramPanel,'Protein Concentration (M)','conc',30e-3);
                 createInput(paramPanel,'Absorption Coefficient α (cm^{-1})','alpha',1e4);
-                createInput(paramPanel,'σ_{01} (cm^2)','sigma',1e-20);
+                createInput(paramPanel,'σ_{01} (cm^2)','sigma',1e-16);
                 createInput(paramPanel,'Photons per Chromophore (Calc.)','phot_per_chrom',0);
 
                 createInput(paramPanel,'Wavelength (nm)','wavelength',530);
                 createInput(paramPanel,'Pulse Duration (s)','tau_p',200e-15);
-                createInput(paramPanel,'Laser Peak Power (W/cm^2)','I',1e13);
+                createInput(paramPanel,'Laser Peak Power (W/cm^2)','I',1e9);
 
                 createInput(paramPanel,'σ_{0n} (m^4·s/photon)','sigma02',290e-58);
-                createInput(paramPanel,'σ_{1n} (cm^2)','sigma12',1e-20);
+                createInput(paramPanel,'σ_{1n} (cm^2)','sigma12',1e-16);
                 createInput(paramPanel,'Detuning Time S_1 (s)','t_detune_1',28e-15);
                 createInput(paramPanel,'Decay Lifetime S_1 (s)','lifetime_1',450e-15);
                 createInput(paramPanel,'Decay Lifetime S_n (s)','lifetime_4',200e-15);
                 createInput(paramPanel,'Max depth (m)','z_max',3e-6);
 
                 solverGroup.SelectedObject = findobj(solverGroup,'Tag','ode45'); % default: ode45
+
+                % Force initial synchronization of dependent fields
+                sigmaField = findobj(fig,'Tag','sigma');
+
+                if ~isempty(sigmaField)
+                    updateAbsorptionFields(fig, sigmaField);
+                end
 
             case 'Dissociation'
                 createInput(paramPanel,'Protein Concentration (M)','conc',30e-3);
@@ -191,6 +198,13 @@ end
                 solverGroup.SelectedObject = findobj(solverGroup,'Tag','Euler'); % default: ode15s
 
                 createAdvancedDissociationInputs();
+
+                % Force initial synchronization of dependent fields
+                sigmaField = findobj(fig,'Tag','sigma');
+
+                if ~isempty(sigmaField)
+                    updateAbsorptionFields(fig, sigmaField);
+                end
 
             case 'Ionization'
                 createInput(paramPanel,'Wavelength (m)','wavelength',515e-9);
