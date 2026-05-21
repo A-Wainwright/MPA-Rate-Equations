@@ -35,7 +35,7 @@ This repository contains MATLAB code and a standalone GUI for modeling multiphot
 
 ### GUI
 
-- The GUI is provided as a compiled executable. Simply run the file `MultiphotonGUI.exe` (Windows) or the corresponding executable for your OS.  
+- The GUI is provided as a compiled executable. Simply run the file `MAPS.exe` (Windows) or the corresponding executable for your OS.  
 - No MATLAB license is required to run the executable.  
 
 ## Usage
