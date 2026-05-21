@@ -4,7 +4,7 @@ This repository contains MATLAB code and a standalone GUI for modeling multiphot
 
 ## Authors
 **Alexander A.C. Wainwright**¹, **Syeda N. Mahdia**², **Khaled Madhoun**¹, **Jessica E. Besaw**³, **R.J. Dwayne Miller**¹ ⁴*  
-\* Corresponding author, dmiller@lphys.chem.utoronto.ca
+\* Corresponding author, dwayne.miller@utoronto.ca
 
 1. Dept. of Physics, University of Toronto, Toronto, ON, Canada, M5R 2M8  
 2. Dept. of Engineering Science, University of Toronto, Toronto, ON, Canada, M5R 2M8  
