@@ -60,9 +60,9 @@ Refer to the README file within each subfolder for system-specific details.
 ---
 
 ## Dependencies
-
-* MATLAB R2020b or later
-* No additional toolboxes required
+- MATLAB R2020b or later (for running scripts)  
+   - Symbolic math toolbox
+   - Control system toolbox
 
 ---
 
