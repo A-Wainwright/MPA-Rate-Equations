@@ -14,7 +14,7 @@ This folder contains two subdirectories:
 * **`Ionization/`** — Strong-field ionization simulations
   Includes single-rate equation (SRE) models describing free-electron generation under intense femtosecond excitation.
 
-* **`Sensitvity/`** — Includes sinsitivity analysis of the rate-equation models for nonlinear absorption processes in the MPA folder.
+* **`Sensitvity/`** — Sinsitivity analysis of the rate-equation models for nonlinear absorption processes in the MPA folder.
 
 Each subfolder contains self-contained MATLAB scripts, required parameters, and figure-generation routines.
 
