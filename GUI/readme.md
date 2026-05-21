@@ -16,7 +16,7 @@ This folder contains the standalone GUI and user manual for exploring and optimi
 
 ## Usage
 
-1. Launch `MyAppInstaller_web.exe` by double-clicking it.  
+1. Launch `MAPS.exe` by double-clicking it.  
 2. Follow instructions in **GUI_Manual_2026.pdf** to set parameters and run simulations.
 3. Results are displayed directly in the GUI interface and can be exported if needed.  
 
