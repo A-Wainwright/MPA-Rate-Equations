@@ -8,7 +8,8 @@ This folder contains MATLAB scripts used to model the sensitivity of the multipl
 
 This folder contains one simulation script:
 
-* **`ProteinSREModel.m`** — Single-rate equation (SRE) model for strong-field ionization in protein systems
+* **`Depth_MPA_Calculations_Br_Sensitivity_Final_Heatmap.m'** — Sensitivity model used to generate heat map shown in main manuscript
+* **Depth_MPA_Calculations_Mb_Sensitivity_Final_V2.m** — Sensitivity model used to generate the sensitivity analysis in the supporting documentation
 
 The script is self-contained and includes:
 
