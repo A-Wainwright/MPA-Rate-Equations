@@ -64,4 +64,4 @@ This project is licensed under the GPL-3.0 license. See the [LICENSE](LICENSE) f
 ## Citation
 If you use this code in your research, please cite the associated manuscript:
 
-Alexander A.C. Wainwright, Syeda N. Mahdia, Khaled Madhoun, Jessica E. Besaw, R.J. Dwayne Miller,Modeling Multiphoton Absorption and Ionization in Ultrafast Pump-Probe Experiments, JCP (Under Review), 2026.
+Wainwright, A. A. C., Mahdia, S. N., Madhoun, K., Besaw, J. E. & Miller, R. J. D. Multiphoton absorption and ionization in ultrafast pump–probe experiments. J. Chem. Phys. 165, 074304 (2026).
